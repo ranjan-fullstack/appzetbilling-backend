@@ -1,6 +1,8 @@
 const cors = require('cors')
+require('dotenv').config()
 const express = require('express')
 const helmet = require('helmet')
+const connectDB = require('./config/db')
 const { errorHandler, notFound } = require('./middleware/errorHandler')
 const apiLimiter = require('./middleware/rateLimiter')
 const contactRoutes = require('./routes/contact.routes')
@@ -41,5 +43,20 @@ app.use('/api/newsletter', newsletterRoutes)
 
 app.use(notFound)
 app.use(errorHandler)
+
+if (require.main === module) {
+  const port = process.env.PORT || 5000
+
+  connectDB()
+    .then(() => {
+      app.listen(port, () => {
+        console.log(`AppzetBilling API listening on port ${port}`)
+      })
+    })
+    .catch((error) => {
+      console.error('Failed to start server', error)
+      process.exit(1)
+    })
+}
 
 module.exports = app
